@@ -112,14 +112,6 @@ Project Camp Backend is a RESTful API service designed to support collaborative 
 - `PUT /:projectId/st/:subTaskId` - Update subtask (secured, role-based)
 - `DELETE /:projectId/st/:subTaskId` - Delete subtask (secured, Admin/Project Admin)
 
-**Note Routes** (`/api/v1/notes/`)
-
-- `GET /:projectId` - List project notes (secured, role-based)
-- `POST /:projectId` - Create note (secured, Admin only)
-- `GET /:projectId/n/:noteId` - Get note details (secured, role-based)
-- `PUT /:projectId/n/:noteId` - Update note (secured, Admin only)
-- `DELETE /:projectId/n/:noteId` - Delete note (secured, Admin only)
-
 **Health Check** (`/api/v1/healthcheck/`)
 
 - `GET /` - System health status
