@@ -1,17 +1,17 @@
-import Mailgen from "mailgen";
-import nodemailer from "nodemailer";
+import Mailgen from 'mailgen';
+import nodemailer from 'nodemailer';
+
+// Create Mailgen instance once
+const mailGenerator = new Mailgen({
+  theme: 'default',
+  product: {
+    name: 'My App',
+    link: 'https://taskmanagerlink.com',
+  },
+});
 
 const sendEmail = async (options) => {
-  const mailGenerator = new Mailgen({
-    theme: "default",
-    product: {
-      name: "Task Manager",
-      link: "https://taskmanagelink.com",
-    },
-  });
-
   const emailTextual = mailGenerator.generatePlaintext(options.mailgenContent);
-
   const emailHtml = mailGenerator.generate(options.mailgenContent);
 
   const transporter = nodemailer.createTransport({
@@ -24,8 +24,8 @@ const sendEmail = async (options) => {
   });
 
   const mail = {
-    from: "mail.taskmanager@example.com",
-    to: options.email,
+    from: process.env.MAILTRAP_SMTP_USER,
+    to: options.email, // must match controller
     subject: options.subject,
     text: emailTextual,
     html: emailHtml,
@@ -34,25 +34,21 @@ const sendEmail = async (options) => {
   try {
     await transporter.sendMail(mail);
   } catch (error) {
-    console.error(
-      "Email service failed siliently. Make sure that you have provided your MAILTRAP credentials in the .env file",
-    );
-    console.error("Error: ", error);
+    console.error('Email service failed!', error);
   }
 };
 
-const emailVerificationMailgenContent = (username, verficationUrl) => {
+const emailVerificationMailgenContent = (username, verificationUrl) => {
   return {
     body: {
       name: username,
-      intro: "Welcome to our App! we'are excited to have you on board.",
+      intro: 'Welcome to the app',
       action: {
-        instructions:
-          "To verify your email please click on the following button",
+        instructions: 'To get started, please click here:',
         button: {
-          color: "#22BC66",
-          text: "Verify your email",
-          link: verficationUrl,
+          color: '#22BC66',
+          text: 'Confirm your account',
+          link: verificationUrl,
         },
       },
       outro:
@@ -65,13 +61,12 @@ const forgotPasswordMailgenContent = (username, passwordResetUrl) => {
   return {
     body: {
       name: username,
-      intro: "We got a request to reset the password of your account",
+      intro: 'We got a request to reset the password for your account.',
       action: {
-        instructions:
-          "To reset your password click on the following button or link",
+        instructions: 'To reset your password, please click here:',
         button: {
-          color: "#22BC66",
-          text: "Reset password",
+          color: '#22BC66',
+          text: 'Reset your password',
           link: passwordResetUrl,
         },
       },
