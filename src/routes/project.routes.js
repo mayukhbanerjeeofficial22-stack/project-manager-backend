@@ -24,23 +24,21 @@ import {
   validateProjectPermission,
 } from "../middlewares/auth.middleware.js";
 
-import { AvailableUserRole, UserRolesEnum } from "../utils/constants.js";
+import { UserRolesEnum } from "../utils/constants.js";
 
 const router = Router();
 
 router.use(verifyJWT);
 
-router.route("/")
+router
+  .route("/")
   .get(getProjects)
-  .post(
-    createProjectValidator(),
-    validate,
-    createProject
-  );
+  .post(createProjectValidator(), validate, createProject);
 
-router.route("/:projectId")
+router
+  .route("/:projectId")
   .get(
-    validateProjectPermission(AvailableUserRole),
+    validateProjectPermission(Object.values(UserRolesEnum)),
     getProjectById
   )
   .put(
@@ -54,7 +52,8 @@ router.route("/:projectId")
     deleteProject
   );
 
-router.route("/:projectId/members")
+router
+  .route("/:projectId/members")
   .get(getProjectMembers)
   .post(
     validateProjectPermission([UserRolesEnum.ADMIN]),
@@ -63,7 +62,8 @@ router.route("/:projectId/members")
     addMembersToProject
   );
 
-router.route("/:projectId/members/:userId")
+router
+  .route("/:projectId/members/:userId")
   .put(
     validateProjectPermission([UserRolesEnum.ADMIN]),
     updateMemberRole
