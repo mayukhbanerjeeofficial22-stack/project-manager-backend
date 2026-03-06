@@ -1,4 +1,3 @@
-import { User } from "../models/user.models.js";
 import { Project } from "../models/project.models.js";
 import { Task } from "../models/task.models.js";
 import { ApiResponse } from "../utils/api-response.js";
@@ -6,17 +5,16 @@ import { ApiError } from "../utils/api-error.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import mongoose from "mongoose";
 
-/*
-----------------------------------
-GET ALL TASKS OF A PROJECT
-----------------------------------
-*/
 const getTasks = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
 
-  const project = await Project.findById(projectId);
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new ApiError(400, "Invalid project id");
+  }
 
-  if (!project) {
+  const projectExists = await Project.exists({ _id: projectId });
+
+  if (!projectExists) {
     throw new ApiError(404, "Project not found");
   }
 
@@ -29,18 +27,17 @@ const getTasks = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, tasks, "Tasks fetched successfully"));
 });
 
-/*
-----------------------------------
-CREATE TASK
-----------------------------------
-*/
 const createTask = asyncHandler(async (req, res) => {
   const { title, description, assignedTo, status } = req.body;
   const { projectId } = req.params;
 
-  const project = await Project.findById(projectId);
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new ApiError(400, "Invalid project id");
+  }
 
-  if (!project) {
+  const projectExists = await Project.exists({ _id: projectId });
+
+  if (!projectExists) {
     throw new ApiError(404, "Project not found");
   }
 
@@ -57,7 +54,7 @@ const createTask = asyncHandler(async (req, res) => {
     description,
     project: projectId,
     assignedTo: assignedTo || null,
-    status,
+    status: status || "todo",
     assignedBy: req.user._id,
     attachments,
   });
@@ -67,13 +64,12 @@ const createTask = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, task, "Task created successfully"));
 });
 
-/*
-----------------------------------
-GET TASK BY ID (WITH SUBTASKS)
-----------------------------------
-*/
 const getTaskById = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    throw new ApiError(400, "Invalid task id");
+  }
 
   const task = await Task.aggregate([
     {
@@ -152,14 +148,13 @@ const getTaskById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, task[0], "Task fetched successfully"));
 });
 
-/*
-----------------------------------
-UPDATE TASK
-----------------------------------
-*/
 const updateTask = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
   const { title, description, status, assignedTo } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    throw new ApiError(400, "Invalid task id");
+  }
 
   const task = await Task.findById(taskId);
 
@@ -179,13 +174,12 @@ const updateTask = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, task, "Task updated successfully"));
 });
 
-/*
-----------------------------------
-DELETE TASK
-----------------------------------
-*/
 const deleteTask = asyncHandler(async (req, res) => {
   const { taskId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    throw new ApiError(400, "Invalid task id");
+  }
 
   const task = await Task.findByIdAndDelete(taskId);
 
