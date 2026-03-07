@@ -164,15 +164,11 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const verifyEmail = asyncHandler(async (req, res) => {
-  const { verificationToken } = req.params;
-
-  if (!verificationToken) {
-    throw new ApiError(400, "Email verification token missing");
-  }
+  const { token } = req.params;
 
   const hashedToken = crypto
     .createHash("sha256")
-    .update(verificationToken)
+    .update(token)
     .digest("hex");
 
   const user = await User.findOne({
@@ -181,18 +177,16 @@ const verifyEmail = asyncHandler(async (req, res) => {
   });
 
   if (!user) {
-    throw new ApiError(400, "Token invalid or expired");
+    throw new ApiError(400, "Invalid or expired token");
   }
 
+  user.isEmailVerified = true;
   user.emailVerificationToken = undefined;
   user.emailVerificationTokenExpiry = undefined;
-  user.isEmailVerified = true;
 
-  await user.save({ validateBeforeSave: false });
+  await user.save();
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, { verified: true }, "Email verified"));
+  res.json({ message: "Email verified successfully" });
 });
 
 const resendEmailVerification = asyncHandler(async (req, res) => {

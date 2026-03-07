@@ -26,7 +26,8 @@ const router = Router();
 // unsecured route
 router.route("/register").post(userRegisterValidator(), validate, registerUser);
 router.route("/login").post(userLoginValidator(), validate, login);
-router.route("/verify-email/:verificationToken").get(verifyEmail);
+router.get("/verify-email/:token", verifyEmail);
+
 router.route("/refresh-token").post(refreshAccessToken);
 router
   .route("/forgot-password")
