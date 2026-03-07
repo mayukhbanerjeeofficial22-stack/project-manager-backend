@@ -70,10 +70,11 @@ const userSchema = new Schema(
 );
 
 // PASSWORD HASHING
-userSchema.pre('save', async function () {
-  if (!this.isModified('password')) return;
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
 
 // AUTO AVATAR GENERATION
@@ -90,7 +91,10 @@ userSchema.pre('save', function () {
 
 // PASSWORD CHECK
 userSchema.methods.isPasswordCorrect = async function (password) {
-  return bcrypt.compare(password, this.password);
+  if (!password || !this.password) {
+    throw new Error("Password data missing");
+  }
+  return await bcrypt.compare(password, this.password);
 };
 
 // ACCESS TOKEN
