@@ -99,6 +99,10 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Email or username is required");
   }
 
+  if (!password) {
+    throw new ApiError(400, "Password is required");
+  }
+
   const user = await User.findOne({
     $or: [{ email }, { username }],
   });
@@ -121,7 +125,7 @@ const login = asyncHandler(async (req, res) => {
     await generateAccessAndRefreshTokens(user._id);
 
   const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken -emailVerificationToken -emailVerificationTokenExpiry",
+    "-password -refreshToken -emailVerificationToken -emailVerificationTokenExpiry"
   );
 
   return res
@@ -136,8 +140,8 @@ const login = asyncHandler(async (req, res) => {
           accessToken,
           refreshToken,
         },
-        "User logged in successfully",
-      ),
+        "User logged in successfully"
+      )
     );
 });
 
